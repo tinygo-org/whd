@@ -1,4 +1,4 @@
-module github.com/soypat/cyw43439
+module github.com/tinygo-org/whd
 
 go 1.23.8
 
