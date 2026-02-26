@@ -1,5 +1,7 @@
 package whd
 
+import "net"
+
 // EthernetDevice is WIP of how ethernet device
 // API design.
 //
@@ -15,11 +17,11 @@ type EthernetDevice interface {
 	SendEthFrame(frame []byte) error
 
 	// SetRecvHandler registers the function called when an Ethernet
-	// frame is received. The handler is invoked from Poll() context,
-	// never from raw ISR context. The pkt slice is only valid for
-	// the duration of the call (zero-copy: handler must copy if it
-	// needs to retain the data). If handler is nil, received frames
-	// are discarded.
+	// frame is received.
+	// We are still deciding on the API to be used. Should the handler be
+	// called from an ISR context? Should the buffers be owned by
+	// the device or the user? Does it help to provide buffers for the
+	// device to use? WIP.
 	SetEthRecvHandler(bufs [][]byte, handler func(pkt []byte) error)
 
 	// EthPoll services the device. For poll-based devices (e.g. CYW43439
@@ -28,6 +30,7 @@ type EthernetDevice interface {
 	// at the moment.
 	// We are waiting to reach a decision on how CAN works in TinyGo
 	// which will affect how we design this API: https://github.com/orgs/tinygo-org/discussions/5174
+	// WIP.
 	EthPoll() (bool, error)
 
 	// HardwareAddr6 returns the device's 6-byte MAC address.
@@ -41,6 +44,11 @@ type EthernetDevice interface {
 	//  // ethernet header+ethernet CRC if present+ethernet VLAN overhead for VLAN support.
 	//  mtu := dev.MaxFrameSize() - ethernet.MaxOverheadSize
 	MaxFrameSize() int
+
+	// NetFlags offers ability to provide user with notice of the device state.
+	// May be also used to encode functioning such as if the device needs FCS/CRC encoding appended
+	// to the ethernet packet. WIP.
+	NetFlags() net.Flags
 }
 
 // JoinOptions configures WiFi connection parameters.
